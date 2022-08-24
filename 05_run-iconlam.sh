@@ -1,5 +1,5 @@
 #! /bin/bash -xl
-# ============================================================================
+# ======================================================================
 # Basic script for the ICON model
 #
 # Limited-area run initialized from and forced by ICON forecasts
@@ -13,6 +13,8 @@
 # 21jan22 (CT Neris) - Output 'topography_c' inserted in the main ml_varlist for comparison purposes with z_mc.
 # 06abr22 (CT Neris) - Removed 'set -ex' from the begining and 'source .bashrc' from the end of the script.
 # 08jun22 (CT Neris) - Removed vars albdif, u, v, w, rh, z_mc, THB_T, geopt and graupel_gsp from the output_nml section.
+# 30jun22 (CT Neris) - Commented 'ln -sf $INIDIR/igfff00000000.grb2 .' for it was unecessary.
+# 30jun22 (CT Neris) - Changed map_file.latbc file ('GEOSP' to 'GEOP_SFC', at GRIB2 shortName column) to match /home/devicon/instalacao-intel2019.5/binaries/icon-2.6.3-no_openmp/run/dict.latbc.
 
 if [ $# -ne 1 ]; then
 
@@ -99,7 +101,7 @@ ln -sf ${EXTPARDIR}/external_parameter_icon_ICON-AS_DOM01_tiles.nc lam_test_DOM0
 
 # initial data
 #
-ln -sf $INIDIR/igfff00000000.grb2 .
+#ln -sf $INIDIR/igfff00000000.grb2 .
 
 # files needed for radiation
 #ln -sf ${ICONDIR}/data/ECHAM6_CldOptProps.nc rrtm_cldopt.nc
@@ -258,7 +260,8 @@ cat > NAMELIST_NWP << EOF
 &io_nml
  itype_pres_msl              =                          5         ! method for computation of mean sea level pressure
  itype_rh                    =                          1         ! method for computation of relative humidity
- lmask_boundary              =                      .TRUE.        ! mask out interpolation zone in output
+!By Alana at 15AGO lmask_boundary     =             .TRUE.        ! mask out interpolation zone in output
+ lmask_boundary              =                      .TRUE.       ! mask out interpolation zone in output
 /
 
 ! limarea_nml: settings for limited area mode ---------------------------------
@@ -378,8 +381,10 @@ cat > NAMELIST_NWP << EOF
  output_grid                =                      .TRUE.
  remap                       =                          1         ! 1: remap to REGULAR lat-lon grid
  north_pole                  =                     0,90.         ! definition of north_pole for regular (NON rotated) lat-lon grid (lon,lat)
- reg_lon_def                 =              -72.1,0.0625,-17.9
- reg_lat_def                 =              -50.0,0.0625,15.0
+! reg_lon_def                 =              -72.1,0.0625,-17.9
+ reg_lon_def                 =              -72.0,0.0625,-17.975
+! reg_lat_def                 =              -50.0,0.0625,15.0
+ reg_lat_def                 =              -49.9,0.0625,14.975
  p_levels			=	20000.0,25000.0,30000.0,40000.0,50000.0,60000.0,70000.0,85000.0,90000.0,95000.0,100000.0 
  pl_varlist='u','v','w','temp','rh','omega','geopot'
  ml_varlist='clcl','clcm','clch','clct','ceiling','cape','cin_ml','fr_land',
@@ -401,33 +406,25 @@ cat > NAMELIST_NWP << EOF
  output_grid                =                      .TRUE.
  remap                       =                          1         ! 1: remap to REGULAR lat-lon grid
  north_pole                  =                     0,90.         ! definition of north_pole for regular (NON rotated) lat-lon grid (lon,lat)
- reg_lon_def                 =              -72.1,0.0625,-17.9
+! reg_lon_def                 =              -72.1,0.0625,-17.9
+ reg_lon_def                 =              -72.0,0.0625,-17.975
  reg_lat_def                 =              -50.0,0.0625,15.0
+! reg_lat_def                 =              -49.9,0.0625,14.975
  ml_varlist='fr_land','group:precip_vars','u_10m','v_10m','gust10','pres_sfc','pres_msl','tmax_2m','tmin_2m','td_2m','t_2m','topography_c'
 /
 
-
 ! meteogram_output_nml: meteogram output file ---------------------------------------------
-!&meteogram_output_nml
-! lmeteogram_enabled		=	.TRUE.
-! n0_mtgrm			= 	0		! initial time step for meteogram output
-! ninc_mtgrm			=	30		! output interval (in time steps, 30*120s = 1 hour)
-! stationlist_tot		= 50.050(lat), 8.600(lon), ’Frankfurt-Flughafen’,
-! stationlist_tot		=	-22.84,-43.16,'BaiaGuanabara_RJ',
-!					-22.90,-43.17,'RiodeJaneiro_RJ',
-!					-23.95,-46.33,'Santos_SP',
-!					-32.04,-52.10,'RioGrande_RS',
-!					-12.97,-38.51,'Salvador_BA',
-!					-17.95,-38.70,'Abrolhos_BA',
-!					-20.32,-40.34,'Vitoria_ES',
-!					-05.80,-35.21,'Natal_RN',
-!					-01.46,-48.50,'Belem_PA',
-!					-20.50,-29.32,'IlhaTrindade'
-! zprefix			=	'meteograms_metarea5'
+&meteogram_output_nml
+ lmeteogram_enabled		=	.TRUE.
+ n0_mtgrm			= 	0		! initial time step for meteogram output
+ ninc_mtgrm			=	1		! output interval (in time steps, 30*120s = 1 hour)
+ stationlist_tot		=	-22.84,-43.16,'BaiaGuanabara_RJ',
+					-22.90,-43.17,'RiodeJaneiro_RJ',
+ zprefix			=	'meteograms_sam'
 ! var_list			=	'clcl','clcm','clch','clct','ceiling','group:precip_vars',
 !					'pres_msl','td_2m','t_2m','tmax_2m','tmin_2m','fr_land',
 !					'rh_2m','u_10m','v_10m','gust10'
-!/
+/
 
 ! radiation_nml: radiation scheme ---------------------------------------------
 &radiation_nml

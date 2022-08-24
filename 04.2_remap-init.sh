@@ -11,7 +11,6 @@
 echo "Initiating script 04.2!"
 date
 
-#export MPI_SHEPHERD=true
 export MPI_GROUP_MAX=1024
 export MPI_IB_RECV_MSGS=2048
 export LIBDWD_BITMAP_TYPE=ASCII
